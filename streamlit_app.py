@@ -13,19 +13,21 @@ st.set_page_config(
 def get_stock_data(tickers, start_date, end_date):
     df = yf.download(tickers, start=start_date, end=end_date)
     
-    # Check if the response is empty
+    # Debugging: Print the raw DataFrame
+    st.write("Raw yfinance Data:", df.head())
+
     if df.empty:
         st.error("Failed to fetch stock data. Please check the ticker symbols and date range.")
         return None
-    
-    # Handle single vs multiple tickers case
-    if 'Adj Close' in df.columns:
-        return df['Adj Close']
-    elif ('Adj Close' in df.index) and (len(tickers) == 1):
-        return df.loc[:, ['Adj Close']]
-    else:
+
+    # If 'Adj Close' is missing, print the columns for debugging
+    if 'Adj Close' not in df.columns:
+        st.write("Unexpected data format. Columns received:", df.columns)
         st.error("Unexpected data format received from yfinance.")
         return None
+
+    return df['Adj Close']
+
 
 # UI Elements
 st.title(':chart_with_upwards_trend: Stock Dashboard')
