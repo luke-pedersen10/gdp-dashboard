@@ -121,6 +121,8 @@ if tickers and len(date_range) == 2:
     
     # Fetch stock data
     stock_data = get_stock_data(tickers, start_date, end_date)
+    #st.write("Stock Data Columns:", stock_data["AAPL"].columns)
+
     
     if stock_data is not None:
         # Display stock price trends
@@ -154,18 +156,60 @@ if tickers and len(date_range) == 2:
             ax.legend()
             st.pyplot(fig)
             moneyflow_tickers = tickers
-            moneyflow_data = calculate_money_flow(stock_data,moneyflow_tickers)
+
+            st.title("Stock Market Sector Performance")
+
+            # Dictionary of S&P 500 sectors and their corresponding ETFs
+            sectors = {
+                "Technology (XLK)": "XLK",
+                "Energy (XLE)": "XLE",
+                "Health Care (XLV)": "XLV",
+                "Financials (XLV)": "XLV",
+                "Consumer Discretionary (XLV)": "XLV",
+                "Consumer Staples (XLP)": "XLP",
+                "Industrials (XLI)": "XLI",
+                "Utilities (XLU)": "XLU",
+                "Materials (XLB)": "XLB",
+                "Real Estate (XLRE)": "XLRE",
+                "Communication Services (XLC)": "XLC",
+            }
+
+            # Create checkboxes dynamically for each sector
+            selected_sectors = {sector: st.checkbox(sector) for sector in sectors.keys()}
+
+            # Function to fetch the latest closing price
+            def get_closing_price(ticker):
+                stock = yf.Ticker(ticker)
+                data = stock.history(period="1d")  # Get the latest daily data
+                return data["Close"].iloc[-1] if not data.empty else "No data available"
+
+            # Display sector closing prices
+            st.write("### Sector Closing Prices:")
+            for sector, is_selected in selected_sectors.items():
+                if is_selected:
+                     moneyflow_tickers.append(sectors[sector])
+
+
+
+
+
+
+
+
+
+            df2 = yf.download(tickers, period='5d', interval='1d')
+            moneyflow_data = calculate_money_flow(df2, moneyflow_tickers)
             heatmap_data = moneyflow_data.pivot(index='Date', columns='Ticker', values='Money Flow')
-            # Set plot size
-            plt.figure(figsize=(10, 6))
-            # Create heatmap
-            sns.heatmap(heatmap_data, cmap='coolwarm', norm=mcolors.LogNorm())
-            # Add title
-            plt.title("Stock Money Flow Heat Map")
-            # Rotate x-axis labels for better readability
+            # Create the heatmap figure
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.heatmap(heatmap_data, cmap='coolwarm', norm=mcolors.LogNorm(), ax=ax)
+
+            # Add title and format labels
+            ax.set_title("Stock Money Flow Heat Map")
             plt.xticks(rotation=45)
-            # Show plot
-            plt.show()
+
+            # Display in Streamlit
+            st.pyplot(fig)
 
         # Display latest stock prices
         st.subheader('Latest Stock Prices')
@@ -177,38 +221,3 @@ if tickers and len(date_range) == 2:
                 st.warning(f'No data available for {ticker}')
 else:
     st.warning('Please enter at least one valid stock ticker and a valid date range.')
-
-
-
-st.title("Stock Market Sector Performance")
-
-# Dictionary of S&P 500 sectors and their corresponding ETFs
-sectors = {
-    "Technology": "XLK",
-    "Energy": "XLE",
-    "Health Care": "XLV",
-    "Financials": "XLF",
-    "Consumer Discretionary": "XLY",
-    "Consumer Staples": "XLP",
-    "Industrials": "XLI",
-    "Utilities": "XLU",
-    "Materials": "XLB",
-    "Real Estate": "XLRE",
-    "Communication Services": "XLC",
-}
-
-# Create checkboxes dynamically for each sector
-selected_sectors = {sector: st.checkbox(sector) for sector in sectors.keys()}
-
-# Function to fetch the latest closing price
-def get_closing_price(ticker):
-    stock = yf.Ticker(ticker)
-    data = stock.history(period="1d")  # Get the latest daily data
-    return data["Close"].iloc[-1] if not data.empty else "No data available"
-
-# Display sector closing prices
-st.write("### Sector Closing Prices:")
-for sector, is_selected in selected_sectors.items():
-    if is_selected:
-        closing_price = get_closing_price(sectors[sector])
-        st.write(f"✅ **{sector} ({sectors[sector]}) Closing Price:** ${closing_price:.2f}")
