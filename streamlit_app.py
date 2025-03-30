@@ -177,3 +177,38 @@ if tickers and len(date_range) == 2:
                 st.warning(f'No data available for {ticker}')
 else:
     st.warning('Please enter at least one valid stock ticker and a valid date range.')
+
+
+
+st.title("Stock Market Sector Performance")
+
+# Dictionary of S&P 500 sectors and their corresponding ETFs
+sectors = {
+    "Technology": "XLK",
+    "Energy": "XLE",
+    "Health Care": "XLV",
+    "Financials": "XLF",
+    "Consumer Discretionary": "XLY",
+    "Consumer Staples": "XLP",
+    "Industrials": "XLI",
+    "Utilities": "XLU",
+    "Materials": "XLB",
+    "Real Estate": "XLRE",
+    "Communication Services": "XLC",
+}
+
+# Create checkboxes dynamically for each sector
+selected_sectors = {sector: st.checkbox(sector) for sector in sectors.keys()}
+
+# Function to fetch the latest closing price
+def get_closing_price(ticker):
+    stock = yf.Ticker(ticker)
+    data = stock.history(period="1d")  # Get the latest daily data
+    return data["Close"].iloc[-1] if not data.empty else "No data available"
+
+# Display sector closing prices
+st.write("### Sector Closing Prices:")
+for sector, is_selected in selected_sectors.items():
+    if is_selected:
+        closing_price = get_closing_price(sectors[sector])
+        st.write(f"✅ **{sector} ({sectors[sector]}) Closing Price:** ${closing_price:.2f}")
