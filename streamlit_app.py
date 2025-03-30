@@ -110,6 +110,22 @@ st.title(':chart_with_upwards_trend: Stock Dashboard')
 ticker_input = st.text_input('Enter stock ticker(s) (comma-separated)', 'AAPL, MSFT')
 tickers = [ticker.strip().upper() for ticker in ticker_input.split(',') if ticker.strip()]
 
+# Input fields for user interaction
+st.write("### Search Financial Data")
+search_term = ticker_input
+max_results = st.slider("Maximum results to fetch:", 1, 20, 10)
+
+if search_term:
+    # Fetch news
+    st.write(f"**Fetching news for:** {search_term}")
+    news = yf.Search(search_term, news_count=max_results).news
+    if news:
+        st.write("### News:")
+        for article in news:
+            st.write(f"- [{article.get('title', 'No title')}](article.get('link', '#'))")
+    else:
+        st.write("No news found.")
+
 # Date range selection
 date_range = st.date_input(
     'Select date range',
