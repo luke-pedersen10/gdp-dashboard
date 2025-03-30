@@ -184,7 +184,7 @@ if tickers and len(date_range) == 2:
                 return data["Close"].iloc[-1] if not data.empty else "No data available"
 
             # Display sector closing prices
-            st.write("### Sector Closing Prices:")
+            st.write("### Stock and Sector Money Flow:")
             for sector, is_selected in selected_sectors.items():
                 if is_selected:
                      moneyflow_tickers.append(sectors[sector])
