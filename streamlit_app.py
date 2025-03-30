@@ -28,16 +28,12 @@ def get_stock_data(tickers, start_date, end_date):
 
     return df['Adj Close']
 
-
 # UI Elements
 st.title(':chart_with_upwards_trend: Stock Dashboard')
 
 # Stock ticker input
-tickers = st.multiselect(
-    'Select stock tickers',
-    ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'NFLX'],
-    ['AAPL', 'MSFT']
-)
+ticker_input = st.text_input('Enter stock ticker(s) (comma-separated)', 'AAPL, MSFT')
+tickers = [ticker.strip().upper() for ticker in ticker_input.split(',') if ticker.strip()]
 
 # Date range selection
 date_range = st.date_input(
@@ -45,7 +41,7 @@ date_range = st.date_input(
     value=[pd.to_datetime('2023-01-01'), pd.to_datetime('2024-01-01')],
 )
 
-if len(tickers) > 0 and len(date_range) == 2:
+if tickers and len(date_range) == 2:
     start_date, end_date = date_range
     
     # Fetch stock data
@@ -60,6 +56,9 @@ if len(tickers) > 0 and len(date_range) == 2:
         st.subheader('Latest Stock Prices')
         latest_prices = stock_data.iloc[-1].round(2)
         for ticker in tickers:
-            st.metric(label=f'{ticker} Price', value=f'${latest_prices[ticker]:,.2f}')
+            if ticker in latest_prices:
+                st.metric(label=f'{ticker} Price', value=f'${latest_prices[ticker]:,.2f}')
+            else:
+                st.warning(f'No data available for {ticker}')
 else:
-    st.warning('Please select at least one stock ticker and a valid date range.')
+    st.warning('Please enter at least one valid stock ticker and a valid date range.')
