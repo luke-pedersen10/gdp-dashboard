@@ -1,6 +1,7 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Set the title and favicon
 st.set_page_config(
@@ -51,6 +52,25 @@ if tickers and len(date_range) == 2:
         # Display stock price trends
         st.subheader('Stock Price Trends')
         st.line_chart(stock_data)
+        
+        # Allow users to select specific dates to analyze
+        selected_dates = st.multiselect('Select specific dates to highlight', stock_data.index.strftime('%Y-%m-%d'))
+        
+        if selected_dates:
+            selected_data = stock_data.loc[selected_dates]
+            
+            # Plot stock prices for selected dates
+            fig, ax = plt.subplots()
+            for ticker in tickers:
+                if ticker in stock_data.columns:
+                    ax.plot(stock_data.index, stock_data[ticker], label=ticker)
+                    ax.scatter(selected_data.index, selected_data[ticker], color='red', label=f'{ticker} Selected')
+            
+            ax.set_title('Stock Prices with Selected Dates')
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Price')
+            ax.legend()
+            st.pyplot(fig)
         
         # Display latest stock prices
         st.subheader('Latest Stock Prices')
