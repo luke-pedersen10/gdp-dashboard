@@ -23,14 +23,14 @@ def get_stock_data(tickers, start_date, end_date):
 
     # If DataFrame has multi-level columns, extract 'Adj Close'
     if isinstance(df.columns, pd.MultiIndex):
-        if 'Adj Close' in df.columns.get_level_values(0):
-            df = df['Adj Close']
+        if 'Close' in df.columns.get_level_values(0):
+            df = df['Close']
         else:
             st.write("Unexpected data format. Columns received:", df.columns)
             st.error("Unexpected data format received from yfinance.")
             return None
     else:
-        if 'Adj Close' not in df.columns:
+        if 'Close' not in df.columns:
             st.write("Unexpected data format. Columns received:", df.columns)
             st.error("Unexpected data format received from yfinance.")
             return None
