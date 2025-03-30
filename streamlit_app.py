@@ -19,8 +19,6 @@ def get_stock_data(tickers, start_date, end_date):
     if df.empty:
         st.error("Failed to fetch stock data. Please check the ticker symbols and date range.")
         return None
-
-    # Handle multi-index columns if necessary
     if isinstance(df.columns, pd.MultiIndex):
         if 'Close' in df.columns.get_level_values(0):
             df = df['Close']
@@ -36,25 +34,11 @@ def get_stock_data(tickers, start_date, end_date):
 
 #Moneyflow calculation
 def calculate_money_flow(data,tickers, period='5d', interval='1d'):
-    """
-    Calculate the money flow for a list of stocks using yfinance.
-    
-    Parameters:
-        tickers (list): List of stock symbols.
-        period (str): Time period to fetch data for (default: '5d').
-        interval (str): Data interval (default: '1d').
-    
-    Returns:
-        DataFrame: A DataFrame containing the money flow for each stock.
-    """
     results = []
     
     # Loop over each ticker to process its data individually
     for ticker in tickers:
-        # Check if the data has a MultiIndex (as is the case when downloading multiple tickers)
         if isinstance(data.columns, pd.MultiIndex):
-            # Extract data for this ticker using the .xs method.
-            # The MultiIndex is organized with attributes as level 0 and ticker symbols as level 1.
             ticker_data = data.xs(ticker, axis=1, level=1)
         else:
             ticker_data = data.copy()
@@ -74,7 +58,7 @@ def calculate_money_flow(data,tickers, period='5d', interval='1d'):
         # Add the ticker as a column for identification
         ticker_data['Ticker'] = ticker
         
-        # Append the results for this ticker (reset index to make Date a column)
+        # Append the results for this ticker 
         results.append(ticker_data[['Ticker', 'Money Flow']].reset_index())
     
     # Combine all individual ticker results into one DataFrame
@@ -137,7 +121,6 @@ if tickers and len(date_range) == 2:
     
     # Fetch stock data
     stock_data = get_stock_data(tickers, start_date, end_date)
-    #st.write("Stock Data Columns:", stock_data["AAPL"].columns)
 
     
     if stock_data is not None:
@@ -190,7 +173,7 @@ if tickers and len(date_range) == 2:
                 "Communication Services (XLC)": "XLC",
             }
 
-            # Create checkboxes dynamically for each sector
+            # Create checkboxes 
             selected_sectors = {sector: st.checkbox(sector) for sector in sectors.keys()}
 
             # Function to fetch the latest closing price
