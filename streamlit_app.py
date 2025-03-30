@@ -2,6 +2,8 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors  
+import seaborn as sns
 
 # Set the title and favicon
 st.set_page_config(
@@ -33,7 +35,7 @@ def get_stock_data(tickers, start_date, end_date):
     return df
 
 #Moneyflow calculation
-def calculate_money_flow(tickers, period='5d', interval='1d'):
+def calculate_money_flow(data,tickers, period='5d', interval='1d'):
     """
     Calculate the money flow for a list of stocks using yfinance.
     
@@ -45,8 +47,6 @@ def calculate_money_flow(tickers, period='5d', interval='1d'):
     Returns:
         DataFrame: A DataFrame containing the money flow for each stock.
     """
-    # Download data for all tickers at once
-    data = yf.download(tickers, period=period, interval=interval)
     results = []
     
     # Loop over each ticker to process its data individually
@@ -153,8 +153,19 @@ if tickers and len(date_range) == 2:
             ax.set_title(f'MACD ({selected_stock})')
             ax.legend()
             st.pyplot(fig)
-
-            
+            moneyflow_tickers = tickers
+            moneyflow_data = calculate_money_flow(stock_data,moneyflow_tickers)
+            heatmap_data = moneyflow_data.pivot(index='Date', columns='Ticker', values='Money Flow')
+            # Set plot size
+            plt.figure(figsize=(10, 6))
+            # Create heatmap
+            sns.heatmap(heatmap_data, cmap='coolwarm', norm=mcolors.LogNorm())
+            # Add title
+            plt.title("Stock Money Flow Heat Map")
+            # Rotate x-axis labels for better readability
+            plt.xticks(rotation=45)
+            # Show plot
+            plt.show()
 
         # Display latest stock prices
         st.subheader('Latest Stock Prices')
