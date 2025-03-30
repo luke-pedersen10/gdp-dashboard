@@ -13,7 +13,7 @@ st.set_page_config(
 @st.cache_data
 def get_stock_data(tickers, start_date, end_date):
     df = yf.download(tickers, start=start_date, end=end_date)
-    
+
     # Debugging: Print the raw DataFrame
     st.write("Raw yfinance Data:", df.head())
 
@@ -21,13 +21,21 @@ def get_stock_data(tickers, start_date, end_date):
         st.error("Failed to fetch stock data. Please check the ticker symbols and date range.")
         return None
 
-    # If 'Adj Close' is missing, print the columns for debugging
-    if 'Adj Close' not in df.columns:
-        st.write("Unexpected data format. Columns received:", df.columns)
-        st.error("Unexpected data format received from yfinance.")
-        return None
+    # If DataFrame has multi-level columns, extract 'Adj Close'
+    if isinstance(df.columns, pd.MultiIndex):
+        if 'Adj Close' in df.columns.get_level_values(0):
+            df = df['Adj Close']
+        else:
+            st.write("Unexpected data format. Columns received:", df.columns)
+            st.error("Unexpected data format received from yfinance.")
+            return None
+    else:
+        if 'Adj Close' not in df.columns:
+            st.write("Unexpected data format. Columns received:", df.columns)
+            st.error("Unexpected data format received from yfinance.")
+            return None
 
-    return df['Adj Close']
+    return df
 
 # UI Elements
 st.title(':chart_with_upwards_trend: Stock Dashboard')
