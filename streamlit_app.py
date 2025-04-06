@@ -106,7 +106,7 @@ if search_term:
     if news:
         st.write("### News:")
         for article in news:
-            st.write(f"- [{article.get('title', 'No title')}](article.get('link', '#'))")
+            st.write(f"- [{article.get('title', 'No title')}]({article.get('link', '#')})")
     else:
         st.write("No news found.")
 
