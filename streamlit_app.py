@@ -186,7 +186,10 @@ if tickers and len(date_range) == 2:
             st.write("### Stock and Sector Money Flow:")
             for sector, is_selected in selected_sectors.items():
                 if is_selected:
-                     moneyflow_tickers.append(sectors[sector])
+                    moneyflow_tickers.append(sectors[sector])
+
+            # Remove duplicate tickers
+            moneyflow_tickers = list(set(moneyflow_tickers))
 
 
 
@@ -195,8 +198,7 @@ if tickers and len(date_range) == 2:
 
 
 
-
-            df2 = yf.download(tickers, period='5d', interval='1d')
+            df2 = yf.download(moneyflow_tickers, period='5d', interval='1d')
             moneyflow_data = calculate_money_flow(df2, moneyflow_tickers)
             heatmap_data = moneyflow_data.pivot(index='Date', columns='Ticker', values='Money Flow')
             # Create the heatmap figure
